@@ -393,6 +393,9 @@
     justify-content: center;
     backdrop-filter: blur(8px);
     transition: all 0.3s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .music-btn:hover {
     border-color: var(--pink);
@@ -410,6 +413,13 @@
   @media (max-width: 400px) {
     .hero-title { font-size: 52px; }
     .photo-grid { grid-template-columns: repeat(2, 1fr); }
+    .music-btn {
+      width: 56px;
+      height: 56px;
+      font-size: 26px;
+      top: 16px;
+      right: 16px;
+    }
   }
 </style>
 </head>
@@ -417,7 +427,7 @@
 
 <canvas id="particlesCanvas"></canvas>
 
-<button class="music-btn playing" id="musicBtn" title="音乐开关">🎵</button>
+<button class="music-btn" id="musicBtn" title="点击播放音乐">🎵</button>
 
 <div class="main-container">
   <!-- Hero -->
@@ -752,37 +762,48 @@
 
   // ===== 音乐控制 =====
   const bgMusic = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicBtn');
   let musicPlaying = false;
+  let musicReady = false;
+
+  // 预加载音频
+  bgMusic.load();
+
+  bgMusic.addEventListener('canplaythrough', function() {
+    musicReady = true;
+  });
+
+  bgMusic.addEventListener('error', function() {
+    musicBtn.textContent = '🔇';
+    musicBtn.title = '音频加载失败';
+  });
 
   function startMusic() {
+    if (!musicReady) {
+      bgMusic.load();
+    }
     bgMusic.play().then(() => {
       musicPlaying = true;
-      document.getElementById('musicBtn').classList.add('playing');
-    }).catch(() => {
-      // 浏览器拦截自动播放，等用户交互
-    });
+      musicBtn.classList.add('playing');
+      musicBtn.textContent = '🎵';
+    }).catch(() => {});
   }
 
   function stopMusic() {
     bgMusic.pause();
     musicPlaying = false;
-    document.getElementById('musicBtn').classList.remove('playing');
+    musicBtn.classList.remove('playing');
+    musicBtn.textContent = '🎵';
   }
 
-  document.getElementById('musicBtn').addEventListener('click', function() {
+  musicBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
     if (musicPlaying) {
       stopMusic();
     } else {
       startMusic();
     }
   });
-
-  // 首次点击页面时启动音乐
-  document.addEventListener('click', function initAudio() {
-    if (!musicPlaying) {
-      startMusic();
-    }
-  }, { once: true });
 
   // ===== 键盘快捷键 =====
   document.addEventListener('keydown', function(e) {
