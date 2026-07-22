@@ -775,49 +775,27 @@
   });
 
   // ===== 音乐控制 =====
-  const bgMusic = document.getElementById('bgMusic');
-  const musicBtn = document.getElementById('musicBtn');
-  let musicPlaying = false;
-  let musicReady = false;
-
-  // 预加载音频
-  bgMusic.load();
-
-  bgMusic.addEventListener('canplaythrough', function() {
-    musicReady = true;
-  });
-
-  bgMusic.addEventListener('error', function() {
-    musicBtn.textContent = '🔇';
-    musicBtn.title = '音频加载失败';
-  });
-
-  function startMusic() {
-    if (!musicReady) {
-      bgMusic.load();
-    }
-    bgMusic.play().then(() => {
-      musicPlaying = true;
-      musicBtn.classList.add('playing');
-      musicBtn.textContent = '🎵';
-    }).catch(() => {});
-  }
-
-  function stopMusic() {
-    bgMusic.pause();
-    musicPlaying = false;
-    musicBtn.classList.remove('playing');
-    musicBtn.textContent = '🎵';
-  }
+  var bgMusic = document.getElementById('bgMusic');
+  var musicBtn = document.getElementById('musicBtn');
+  var musicPlaying = false;
 
   musicBtn.addEventListener('click', function(e) {
     e.stopPropagation();
+    e.preventDefault();
     if (musicPlaying) {
-      stopMusic();
+      bgMusic.pause();
+      musicPlaying = false;
+      musicBtn.classList.remove('playing');
     } else {
-      startMusic();
+      bgMusic.play().then(function() {
+        musicPlaying = true;
+        musicBtn.classList.add('playing');
+      }).catch(function(err) {
+        alert('音乐播放失败：' + err.message + '\n请确认网络连接正常后刷新页面再试');
+      });
     }
   });
+
 
   // ===== 键盘快捷键 =====
   document.addEventListener('keydown', function(e) {
