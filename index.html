@@ -550,7 +550,7 @@
 </div>
 
 <input type="file" id="photoInput" accept="image/*" style="display:none;">
-<audio id="bgMusic" src="程艾影.mp3" loop preload="auto" style="display:none;"></audio>
+<audio id="bgMusic" src="程艾影.mp3" loop style="display:none;"></audio>
 
 <script>
   // ===== 设置起始日期（请修改为你们的纪念日） =====
@@ -779,6 +779,9 @@
   var musicBtn = document.getElementById('musicBtn');
   var musicPlaying = false;
 
+  // 页面加载后立即开始缓冲（移动端preload常常被忽略，手动触发一次load）
+  setTimeout(function() { bgMusic.load(); }, 500);
+
   musicBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     e.preventDefault();
@@ -787,11 +790,14 @@
       musicPlaying = false;
       musicBtn.classList.remove('playing');
     } else {
+      musicBtn.textContent = '⏳';
       bgMusic.play().then(function() {
         musicPlaying = true;
         musicBtn.classList.add('playing');
+        musicBtn.textContent = '🎵';
       }).catch(function(err) {
-        alert('音乐播放失败：' + err.message + '\n请确认网络连接正常后刷新页面再试');
+        musicBtn.textContent = '🎵';
+        alert('播放失败：' + err.message + '\n请检查网络后刷新页面再试');
       });
     }
   });
