@@ -560,6 +560,20 @@
   const DAYS_TARGET = 100;
   let currentPhotoIndex = -1;
 
+  // ===== 预加载照片 =====
+  const photoUrls = [
+    'photos/微信图片_20260722214001_421_20.jpg',
+    'photos/微信图片_20260722214106_422_20.jpg',
+    'photos/74592558f64f56d208e290942514d036.jpg',
+    'photos/7547004fdd1fb50c4f36d8fcaaf03d61.jpg',
+    'photos/db0c630780a0d27ca325968ec938f402.jpg',
+    'photos/c2f0901a595d4ed0994c6777f3d2f458.jpg',
+  ];
+  photoUrls.forEach(function(url) {
+    var img = new Image();
+    img.src = url;
+  });
+
   // ===== Canvas粒子系统 =====
   const canvas = document.getElementById('particlesCanvas');
   const ctx = canvas.getContext('2d');
