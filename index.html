@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>恋爱100天快乐</title>
+<style>
+  :root {
+    --pink: #ff6b9d;
+    --pink-light: #ffb3c6;
+    --pink-dark: #c44569;
+    --rose: #ff8fab;
+    --bg: #fff5f7;
+    --white: #ffffff;
+    --text: #4a3040;
+    --gold: #f0c27a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #fff5f7 0%, #ffe0e8 30%, #ffd4e0 60%, #fce4ec 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+    color: var(--text);
+  }
+
+  /* 浮动粒子画布 */
+  #particlesCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* 飘落花瓣 */
+  .petal {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1;
+    font-size: 24px;
+    animation: petalFall linear forwards;
+    opacity: 0.8;
+  }
+  @keyframes petalFall {
+    0% { transform: translateY(-10vh) rotate(0deg) translateX(0px); opacity: 0.9; }
+    25% { transform: translateY(25vh) rotate(90deg) translateX(30px); }
+    50% { transform: translateY(50vh) rotate(180deg) translateX(-20px); }
+    75% { transform: translateY(75vh) rotate(270deg) translateX(40px); opacity: 0.5; }
+    100% { transform: translateY(110vh) rotate(360deg) translateX(-30px); opacity: 0; }
+  }
+
+  /* 点击心形爆发 */
+  .heart-burst {
+    position: fixed;
+    pointer-events: none;
+    z-index: 100;
+    font-size: 28px;
+    animation: heartPop 1.2s ease-out forwards;
+  }
+  @keyframes heartPop {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.6); opacity: 0.9; }
+    100% { transform: translate(-50%, -60%) scale(0.5); opacity: 0; }
+  }
+
+  /* 主容器 */
+  .main-container {
+    position: relative;
+    z-index: 2;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Hero部分 */
+  .hero {
+    text-align: center;
+    padding: 50px 20px 30px;
+    animation: fadeInUp 1s ease;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-subtitle {
+    font-size: 18px;
+    color: var(--pink);
+    letter-spacing: 8px;
+    margin-bottom: 12px;
+    font-weight: 300;
+  }
+
+  .hero-title {
+    font-size: 72px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #ff8fab 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    animation: pulse 2s ease-in-out infinite;
+    text-shadow: none;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .hero-days {
+    font-size: 22px;
+    color: var(--pink-dark);
+    margin-top: 8px;
+    font-weight: 300;
+    letter-spacing: 4px;
+  }
+
+  /* 爱心进度条 */
+  .love-meter {
+    width: 100%;
+    background: rgba(255,255,255,0.7);
+    border-radius: 20px;
+    padding: 24px;
+    margin: 10px 0 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(255,107,157,0.12);
+    animation: fadeInUp 1s ease 0.2s both;
+  }
+
+  .meter-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: var(--pink-dark);
+  }
+
+  .meter-bar {
+    height: 12px;
+    background: #ffe0e8;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .meter-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6b9d, #ff8fab, #f0c27a);
+    border-radius: 6px;
+    transition: width 2s ease;
+    position: relative;
+  }
+  .meter-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0;
+    width: 20px; height: 100%;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255,107,157,0.5);
+  }
+
+  /* 卡片 */
+  .card {
+    width: 100%;
+    background: rgba(255,255,255,0.75);
+    border-radius: 24px;
+    padding: 28px 24px;
+    margin-bottom: 16px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(255,107,157,0.1);
+    border: 1px solid rgba(255,255,255,0.8);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 1s ease both;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(255,107,157,0.18);
+  }
+  .card:nth-child(1) { animation-delay: 0.3s; }
+  .card:nth-child(2) { animation-delay: 0.45s; }
+  .card:nth-child(3) { animation-delay: 0.6s; }
+
+  .card-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--pink-dark);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 24px; }
+
+  /* 情书区 */
+  .love-letter {
+    line-height: 2;
+    font-size: 15px;
+    color: #6b4d5c;
+    text-align: justify;
+    position: relative;
+  }
+  .love-letter .highlight {
+    color: var(--pink);
+    font-weight: 600;
+  }
+
+  /* 时间轴 */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--pink-light), var(--pink-dark));
+    border-radius: 1px;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 12px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    background: var(--pink);
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(255,107,157,0.3);
+  }
+  .timeline-date {
+    font-size: 13px;
+    color: var(--pink);
+    font-weight: 500;
+  }
+  .timeline-text {
+    font-size: 14px;
+    color: #6b4d5c;
+    margin-top: 2px;
+  }
+
+  /* 相册 */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .photo-placeholder {
+    aspect-ratio: 3/4;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffd4e0, #ffb3c6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-placeholder:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(255,107,157,0.25);
+  }
+  .photo-placeholder img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0; left: 0;
+  }
+  .photo-hint {
+    position: absolute;
+    bottom: 8px;
+    font-size: 11px;
+    color: white;
+    background: rgba(196,69,105,0.7);
+    padding: 2px 8px;
+    border-radius: 10px;
+    pointer-events: none;
+  }
+
+  /* 计数动画数字 */
+  .counter-section {
+    text-align: center;
+    padding: 30px 0;
+  }
+  .counter-big {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--pink-dark);
+    font-variant-numeric: tabular-nums;
+  }
+  .counter-label {
+    font-size: 16px;
+    color: var(--pink);
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+
+  /* 按钮 */
+  .btn-heart {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #ff6b9d, #c44569);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+    box-shadow: 0 6px 20px rgba(196,69,105,0.3);
+  }
+  .btn-heart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(196,69,105,0.4);
+  }
+  .btn-heart:active {
+    transform: scale(0.95);
+  }
+
+  /* 弹窗 */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: white;
+    border-radius: 24px;
+    padding: 32px 24px;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+    animation: modalPop 0.4s ease;
+  }
+  @keyframes modalPop {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal h2 {
+    font-size: 28px;
+    color: var(--pink-dark);
+    margin-bottom: 12px;
+  }
+  .modal p {
+    color: #6b4d5c;
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+  .modal .big-heart {
+    font-size: 64px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  /* 音乐控制 */
+  .music-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 300;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.8);
+    border: 2px solid var(--pink-light);
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s;
+  }
+  .music-btn:hover {
+    border-color: var(--pink);
+    background: white;
+  }
+  .music-btn.playing {
+    animation: musicPulse 1s ease-in-out infinite;
+  }
+  @keyframes musicPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,157,0.4); }
+    50% { box-shadow: 0 0 0 16px rgba(255,107,157,0); }
+  }
+
+  /* 响应式 */
+  @media (max-width: 400px) {
+    .hero-title { font-size: 52px; }
+    .photo-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particlesCanvas"></canvas>
+
+<button class="music-btn playing" id="musicBtn" title="音乐开关">🎵</button>
+
+<div class="main-container">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-subtitle">我 们 的</div>
+    <div class="hero-title" id="daysCount">100</div>
+    <div class="hero-days">天 纪 念 日</div>
+  </div>
+
+  <!-- 计时器 -->
+  <div class="counter-section" style="animation: fadeInUp 1s ease 0.15s both;">
+    <div style="font-size:14px;color:#999;letter-spacing:2px;">我们已经在一起</div>
+    <div style="display:flex;gap:16px;justify-content:center;margin:12px 0;">
+      <div><span class="counter-big" id="counterDays">100</span><div class="counter-label">天</div></div>
+      <div><span class="counter-big" id="counterHours">0</span><div class="counter-label">时</div></div>
+      <div><span class="counter-big" id="counterMins">0</span><div class="counter-label">分</div></div>
+      <div><span class="counter-big" id="counterSecs">0</span><div class="counter-label">秒</div></div>
+    </div>
+  </div>
+
+  <!-- 爱心进度条 -->
+  <div class="love-meter">
+    <div class="meter-label">
+      <span>❤️ 爱的进度</span>
+      <span id="meterPercent">100%</span>
+    </div>
+    <div class="meter-bar">
+      <div class="meter-fill" id="meterFill" style="width: 0%;"></div>
+    </div>
+    <div style="margin-top:8px;font-size:13px;color:#999;text-align:center;">
+      距离下一个里程碑：<span style="color:var(--pink);font-weight:600;" id="nextMilestone">200天</span>
+    </div>
+  </div>
+
+  <!-- 情书 -->
+  <div class="card">
+    <div class="card-title"><span class="icon">💌</span> 写给你</div>
+    <div class="love-letter">
+      <p>亲爱的，<span class="highlight">100天</span>了。</p>
+      <p>一百天其实很短，短到我仍感觉第一次见面就在昨天；一百天很长，长到我们的心跳有了无数次共振。</p>
+      <p><span class="highlight">       永远都像初次见你那样 使我心荡漾</span>。</p>
+         </div>
+  </div>
+
+  <!-- 时间轴 -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📅</span> 我们的故事</div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-date">四月十四日</div>
+        <div class="timeline-text">在摩天活力城的星巴克 💕</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">四月十四日</div>
+        <div class="timeline-text">第一次牵手，第一次拥抱</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">五月三十日</div>
+        <div class="timeline-text">第一次给你带绿豆汤</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">五月三十一日</div>
+        <div class="timeline-text">第一次陪你过了儿童节（提前过的ovo）</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">第 100 天</div>
+        <div class="timeline-text">今天，我们庆祝100天 ❤️</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 相册 -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📸</span> 甜蜜瞬间 <span style="font-size:12px;color:#999;font-weight:400;">（点击可更换照片）</span></div>
+    <div class="photo-grid" id="photoGrid">
+      <div class="photo-placeholder" data-index="0">
+        <img src="photos/微信图片_20260722214001_421_20.jpg" alt="甜蜜瞬间1">
+        <div class="photo-hint">第一个儿童节~</div>
+      </div>
+      <div class="photo-placeholder" data-index="1">
+        <img src="photos/微信图片_20260722214106_422_20.jpg" alt="甜蜜瞬间2">
+        <div class="photo-hint">与你</div>
+      </div>
+      <div class="photo-placeholder" data-index="2">
+        <img src="photos/74592558f64f56d208e290942514d036.jpg" alt="甜蜜瞬间3">
+        <div class="photo-hint">你给我拍哒~</div>
+      </div>
+      <div class="photo-placeholder" data-index="3">
+        <img src="photos/7547004fdd1fb50c4f36d8fcaaf03d61.jpg" alt="甜蜜瞬间4">
+        <div class="photo-hint">蛙趣宝宝你咋这漂亮</div>
+      </div>
+      <div class="photo-placeholder" data-index="4">
+        <img src="photos/db0c630780a0d27ca325968ec938f402.jpg" alt="甜蜜瞬间5">
+        <div class="photo-hint">绵绵冰！！</div>
+      </div>
+      <div class="photo-placeholder" data-index="5">
+        <img src="photos/c2f0901a595d4ed0994c6777f3d2f458.jpg" alt="甜蜜瞬间6">
+        <div class="photo-hint">最幸福的时刻</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 按钮 -->
+  <button class="btn-heart" id="surpriseBtn" style="margin: 20px 0 40px;">
+    💖 点我有惊喜
+  </button>
+</div>
+
+<!-- 惊喜弹窗 -->
+<div class="modal-overlay" id="modalOverlay" style="display:none;">
+  <div class="modal">
+    <div class="big-heart">💝</div>
+    <h2>100天快乐！</h2>
+    <p>感谢这100天里每一个有你的瞬间<br>
+    和你在一起的每一天<br>
+    都是我最珍贵的礼物</p>
+    <p style="font-size:24px;letter-spacing:4px;">❤️ 我爱你 ❤️</p>
+    <button class="btn-heart" onclick="closeModal()">💗 我也是</button>
+  </div>
+</div>
+
+<input type="file" id="photoInput" accept="image/*" style="display:none;">
+<audio id="bgMusic" src="程艾影.mp3" loop preload="auto" style="display:none;"></audio>
+
+<script>
+  // ===== 设置起始日期（请修改为你们的纪念日） =====
+  const START_DATE = new Date('2026-04-13T12:00:00');
+  // ===============================================
+
+  const DAYS_TARGET = 100;
+  let currentPhotoIndex = -1;
+
+  // ===== Canvas粒子系统 =====
+  const canvas = document.getElementById('particlesCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let w, h;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  class Particle {
+    constructor() {
+      this.reset();
+      this.y = Math.random() * h;
+    }
+    reset() {
+      this.x = Math.random() * w;
+      this.y = -20;
+      this.size = Math.random() * 14 + 6;
+      this.speed = Math.random() * 0.6 + 0.2;
+      this.wobble = Math.random() * 2 - 1;
+      this.opacity = Math.random() * 0.4 + 0.2;
+      this.type = Math.random() > 0.5 ? 'heart' : 'circle';
+    }
+    update() {
+      this.y += this.speed;
+      this.x += Math.sin(this.y * 0.01) * this.wobble * 0.5;
+      if (this.y > h + 20) this.reset();
+    }
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.opacity;
+      ctx.fillStyle = this.type === 'heart' ? '#ff6b9d' : '#ffb3c6';
+      if (this.type === 'heart') {
+        const s = this.size;
+        ctx.translate(this.x, this.y);
+        ctx.beginPath();
+        const topCurveHeight = s * 0.3;
+        ctx.moveTo(0, topCurveHeight);
+        ctx.bezierCurveTo(0, 0, -s/2, 0, -s/2, topCurveHeight);
+        ctx.bezierCurveTo(-s/2, s*0.6, 0, s*0.85, 0, s);
+        ctx.bezierCurveTo(0, s*0.85, s/2, s*0.6, s/2, topCurveHeight);
+        ctx.bezierCurveTo(s/2, 0, 0, 0, 0, topCurveHeight);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  for (let i = 0; i < 50; i++) particles.push(new Particle());
+  function animate() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // ===== 花瓣飘落 =====
+  function spawnPetal() {
+    const petal = document.createElement('div');
+    petal.className = 'petal';
+    petal.textContent = ['🌸','💕','💗','🩷','🌷','💖','✨'][Math.floor(Math.random()*7)];
+    petal.style.left = Math.random() * 100 + '%';
+    petal.style.animationDuration = (Math.random() * 6 + 6) + 's';
+    petal.style.fontSize = (Math.random() * 16 + 16) + 'px';
+    document.body.appendChild(petal);
+    setTimeout(() => petal.remove(), 12000);
+  }
+  setInterval(spawnPetal, 2000);
+  spawnPetal(); spawnPetal(); spawnPetal();
+
+  // ===== 点击产生心形 =====
+  document.addEventListener('click', function(e) {
+    for (let i = 0; i < 5; i++) {
+      const heart = document.createElement('div');
+      heart.className = 'heart-burst';
+      heart.style.left = e.clientX + (Math.random()-0.5)*60 + 'px';
+      heart.style.top = e.clientY + (Math.random()-0.5)*60 + 'px';
+      heart.style.animationDuration = (Math.random()*0.6 + 1) + 's';
+      heart.style.fontSize = (Math.random()*16 + 20) + 'px';
+      heart.textContent = ['❤️','💕','💗','💖','💝','🩷'][Math.floor(Math.random()*6)];
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 1300);
+    }
+  });
+
+  // ===== 计时器 =====
+  function updateCounter() {
+    const now = new Date();
+    const diff = now - START_DATE;
+    const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+    const secs = Math.floor((diff % (1000*60)) / 1000);
+
+    document.getElementById('counterDays').textContent = totalDays;
+    document.getElementById('counterHours').textContent = hours;
+    document.getElementById('counterMins').textContent = mins;
+    document.getElementById('counterSecs').textContent = secs;
+
+    // 进度条
+    const progress = Math.min(100, (totalDays / DAYS_TARGET) * 100);
+    document.getElementById('meterFill').style.width = progress + '%';
+    document.getElementById('meterPercent').textContent = Math.round(progress) + '%';
+
+    // 下一个里程碑
+    const nextMilestone = Math.ceil(totalDays / 100) * 100;
+    const remaining = nextMilestone - totalDays;
+    document.getElementById('nextMilestone').textContent =
+      remaining <= 0 ? '就是今天！🎉' : nextMilestone + '天（还剩' + remaining + '天）';
+
+    // 标题数字
+    if (totalDays >= DAYS_TARGET) {
+      document.getElementById('daysCount').textContent = totalDays;
+    }
+  }
+  updateCounter();
+  setInterval(updateCounter, 1000);
+
+  // ===== 进度条动画 =====
+  setTimeout(() => {
+    document.getElementById('meterFill').style.width =
+      Math.min(100, (Math.floor((new Date() - START_DATE) / 86400000) / DAYS_TARGET) * 100) + '%';
+  }, 500);
+
+  // ===== 相册上传 =====
+  document.getElementById('photoGrid').addEventListener('click', function(e) {
+    const placeholder = e.target.closest('.photo-placeholder');
+    if (!placeholder) return;
+    currentPhotoIndex = parseInt(placeholder.dataset.index);
+    document.getElementById('photoInput').click();
+  });
+
+  document.getElementById('photoInput').addEventListener('change', function(e) {
+    if (!e.target.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const placeholders = document.querySelectorAll('.photo-placeholder');
+      const target = placeholders[currentPhotoIndex];
+      target.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      target.appendChild(img);
+      const hint = document.createElement('div');
+      hint.className = 'photo-hint';
+      hint.textContent = '点击更换';
+      target.appendChild(hint);
+    };
+    reader.readAsDataURL(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  // ===== 惊喜弹窗 =====
+  const surpriseMessages = [
+    { title: '💝', subtitle: '100天快乐！', text: '感谢这100天里每一个有你的瞬间<br>和你在一起的每一天<br>都是我最珍贵的礼物', ending: '❤️ 我爱你 ❤️' },
+    { title: '🌙', subtitle: '晚安，我的爱人', text: '每天晚上睡前想到你<br>就觉得这一天很圆满<br>你就是我最好的美梦', ending: '💤 梦里见 💤' },
+    { title: '🌟', subtitle: '你是我的星光', text: '在茫茫人海中遇见你<br>是我这辈子最幸运的事<br>你让我的世界闪闪发光', ending: '✨ Forever ✨' },
+    { title: '🦋', subtitle: '心跳的感觉', text: '每次见到你<br>还是会像第一天那样<br>小鹿乱撞，心动不已', ending: '💗 心动持续中 💗' },
+  ];
+
+  let surpriseIndex = 0;
+  document.getElementById('surpriseBtn').addEventListener('click', function() {
+    const msg = surpriseMessages[surpriseIndex % surpriseMessages.length];
+    surpriseIndex++;
+    const modal = document.getElementById('modalOverlay');
+    modal.querySelector('.big-heart').textContent = msg.title;
+    modal.querySelector('h2').textContent = msg.subtitle;
+    modal.querySelector('p').innerHTML = msg.text;
+    modal.querySelector('p:last-of-type').textContent = msg.ending;
+    modal.style.display = 'flex';
+
+    // 弹窗内撒花
+    for (let i = 0; i < 15; i++) {
+      setTimeout(() => {
+        const h = document.createElement('div');
+        h.className = 'heart-burst';
+        h.style.left = (30 + Math.random() * 40) + '%';
+        h.style.top = (20 + Math.random() * 40) + '%';
+        h.style.animationDuration = '2s';
+        h.textContent = ['💕','💖','💗','💝','✨','🌸'][Math.floor(Math.random()*6)];
+        document.body.appendChild(h);
+        setTimeout(() => h.remove(), 2200);
+      }, i * 80);
+    }
+  });
+
+  function closeModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+  }
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ===== 音乐控制 =====
+  const bgMusic = document.getElementById('bgMusic');
+  let musicPlaying = false;
+
+  function startMusic() {
+    bgMusic.play().then(() => {
+      musicPlaying = true;
+      document.getElementById('musicBtn').classList.add('playing');
+    }).catch(() => {
+      // 浏览器拦截自动播放，等用户交互
+    });
+  }
+
+  function stopMusic() {
+    bgMusic.pause();
+    musicPlaying = false;
+    document.getElementById('musicBtn').classList.remove('playing');
+  }
+
+  document.getElementById('musicBtn').addEventListener('click', function() {
+    if (musicPlaying) {
+      stopMusic();
+    } else {
+      startMusic();
+    }
+  });
+
+  // 首次点击页面时启动音乐
+  document.addEventListener('click', function initAudio() {
+    if (!musicPlaying) {
+      startMusic();
+    }
+  }, { once: true });
+
+  // ===== 键盘快捷键 =====
+  document.addEventListener('keydown', function(e) {
+    if (e.key === ' ' || e.code === 'Space') {
+      e.preventDefault();
+      document.getElementById('surpriseBtn').click();
+    }
+  });
+
+  console.log('💕 恋爱100天纪念日 - 愿每一天都如今天般甜蜜 💕');
+  console.log('💡 提示：修改代码中 START_DATE 为你们的纪念日');
+  console.log('💡 按空格键触发惊喜弹窗');
+</script>
+</body>
+</html>
